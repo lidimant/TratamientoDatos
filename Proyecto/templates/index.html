@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Quito Restaurants</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="static/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body { background: #f8f9fa; }
+      .card-img-top { object-fit: cover; height: 180px; }
+    </style>
+</head>
+
+<body>
+
+<div class="container py-4">
+  <h1 class="mb-4">Restaurants near La Carolina</h1>
+
+  <button class="btn btn-primary mb-4" onclick="loadRestaurants()">Load Restaurants</button>
+
+  <div id="results"></div>
+</div>
+
+<script>
+async function loadRestaurants() {
+    const response = await fetch("/api/restaurants");
+    const data = await response.json();
+
+    const container = document.getElementById("results");
+    container.innerHTML = "";
+
+    if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = '<p class="text-muted">No restaurants found.</p>';
+        return;
+    }
+
+    let cards = '';
+    data.forEach(r => {
+        // Si r.image no existe, usamos image.jpg que está en el mismo directorio
+        const imgSrc = r.image ? r.image : 'static/image.jpg';
+        cards += `
+        <div class="col">
+          <div class="card h-100">
+            <img src="${imgSrc}" class="card-img-top" alt="${r.name || 'Imagen de restaurante'}">
+            <div class="card-body">
+              <h5 class="card-title">${r.name || 'Sin nombre'}</h5>
+              <p class="card-text mb-1">${r.address || ''}</p>
+              <p class="card-text mb-1">Rating: ${r.rating ?? 'N/A'}</p>
+              <p class="card-text mb-2">Reviews: ${r.users ?? 0}</p>
+              <a href="#" class="btn btn-sm btn-outline-primary">Ver</a>
+            </div>
+          </div>
+        </div>
+        `;
+    });
+
+    container.innerHTML = `<div class="container"><div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">${cards}</div></div>`;
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
